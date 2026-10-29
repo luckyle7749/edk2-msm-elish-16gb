@@ -10,7 +10,9 @@ case "${1:-}" in
       BaseTools/Source/C/BrotliCompress/brotli \
       MdeModulePkg/Library/BrotliCustomDecompressLib/brotli \
       MdePkg/Library/BaseFdtLib/libfdt \
-      MdePkg/Library/MipiSysTLib/mipisyst
+      MdePkg/Library/MipiSysTLib/mipisyst \
+      CryptoPkg/Library/OpensslLib/openssl \
+      CryptoPkg/Library/MbedTlsLib/mbedtls
     git -C GPLDrivers/Library/SimpleInit submodule update --init --recursive
     ;;
   --offline) ;;
