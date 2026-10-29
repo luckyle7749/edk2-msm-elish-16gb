@@ -16,6 +16,8 @@
 
 [Sources]
   MemoryInitPeiLib.c
+  HighMemory.c
+  HighMemory.h
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -40,6 +42,7 @@
   gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob
 
 [FixedPcd]
+  gQcomTokenSpaceGuid.PcdAdditionalRamBase
   gArmTokenSpaceGuid.PcdSystemMemoryBase
   gArmTokenSpaceGuid.PcdSystemMemorySize
   gSimpleInitTokenSpaceGuid.PcdDeviceTreeStore

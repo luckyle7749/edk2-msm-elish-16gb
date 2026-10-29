@@ -17,6 +17,8 @@
   GCC:*_*_AARCH64_CC_FLAGS = -DENABLE_SIMPLE_INIT
 
 [PcdsFixedAtBuild.common]
+  # Supplement only actual RAM above the original platform map.
+  gQcomTokenSpaceGuid.PcdAdditionalRamBase|0x200000000
   gQcomTokenSpaceGuid.PcdMipiFrameBufferWidth|1600
   gQcomTokenSpaceGuid.PcdMipiFrameBufferHeight|2560
 

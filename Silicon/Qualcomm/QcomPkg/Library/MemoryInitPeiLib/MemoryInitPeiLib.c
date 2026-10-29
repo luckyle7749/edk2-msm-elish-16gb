@@ -17,6 +17,7 @@
 #include <Library/PcdLib.h>
 #include <Library/FdtParserLib.h>
 #include <Library/PlatformMemoryMapLib.h>
+#include "HighMemory.h"
 
 #define SIZE_KB ((UINTN)(1024))
 #define SIZE_MB ((UINTN)(SIZE_KB * 1024))
@@ -62,6 +63,50 @@ VOID AddHob(PARM_MEMORY_REGION_DESCRIPTOR_EX Desc)
       Desc->MemoryType == EfiRuntimeServicesData)
   {
     BuildMemoryAllocationHob(Desc->Address, Desc->Length, Desc->MemoryType);
+  }
+}
+
+/* Export extra RAM as allocated boot-services data. Firmware allocations stay
+   in the original, working low-memory pool; Linux reclaims this RAM after
+   ExitBootServices. No HOBs are created until the complete plan is validated. */
+STATIC
+VOID AddHighMemory(fdt *Fdt, ARM_MEMORY_REGION_DESCRIPTOR *Map, UINTN *Index)
+{
+  HIGH_MEMORY_RANGE Excluded[MAX_ARM_MEMORY_REGION_DESCRIPTOR_COUNT];
+  HIGH_MEMORY_RANGE Extra[HIGH_MEMORY_MAX_RANGES];
+  PARM_MEMORY_REGION_DESCRIPTOR_EX Entry = GetPlatformMemoryMap();
+  ARM_MEMORY_REGION_DESCRIPTOR_EX Desc = {
+    "OS High RAM", 0, 0, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK_XN
+  };
+  size_t ExcludedCount = 0, Count = 0, I;
+  int Status;
+
+  while (Entry->Length != 0) {
+    if (ExcludedCount >= MAX_ARM_MEMORY_REGION_DESCRIPTOR_COUNT) {
+      DEBUG((EFI_D_ERROR, "High RAM: platform map exceeds capacity\n"));
+      return;
+    }
+    Excluded[ExcludedCount].Base = Entry->Address;
+    Excluded[ExcludedCount++].Size = Entry->Length;
+    Entry++;
+  }
+  Status = PlanHighMemory(
+    Fdt, FixedPcdGet64(PcdAdditionalRamBase), ArmGetPhysicalAddressBits(),
+    Excluded, ExcludedCount, Extra, HIGH_MEMORY_MAX_RANGES, &Count
+  );
+  if (Status != 0 || Count >= MAX_ARM_MEMORY_REGION_DESCRIPTOR_COUNT - *Index) {
+    DEBUG((EFI_D_ERROR, "High RAM: keeping static map, status=%d count=%lu\n", Status, (UINTN)Count));
+    return;
+  }
+  for (I = 0; I < Count; I++) {
+    Desc.Address = Extra[I].Base;
+    Desc.Length = Extra[I].Size;
+    AddHob(&Desc);
+    Map[*Index].PhysicalBase = Desc.Address;
+    Map[*Index].VirtualBase = Desc.Address;
+    Map[*Index].Length = Desc.Length;
+    Map[(*Index)++].Attributes = Desc.ArmAttributes;
+    DEBUG((EFI_D_INFO, "High RAM: 0x%016lx + 0x%016lx, BootServicesData\n", Desc.Address, Desc.Length));
   }
 }
 
@@ -163,6 +208,9 @@ MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 UefiMemorySize)
     Index++;
     MemoryDescriptorEx++;
   }
+
+  if (FixedPcdGet64(PcdAdditionalRamBase) != 0)
+    AddHighMemory(Fdt, MemoryDescriptor, &Index);
 
   // Last one (terminator)
   ASSERT(Index < MAX_ARM_MEMORY_REGION_DESCRIPTOR_COUNT);

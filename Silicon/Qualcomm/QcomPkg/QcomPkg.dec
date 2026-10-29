@@ -43,6 +43,9 @@
   # Memory allocation
   gQcomTokenSpaceGuid.PcdUefiMemPoolBase|0|UINT64|0x00000a106
   gQcomTokenSpaceGuid.PcdUefiMemPoolSize|0|UINT32|0x00000a107
+  # Zero disables bootloader-FDT RAM supplementation; otherwise this is the
+  # lower address bound above the platform's validated static RAM map.
+  gQcomTokenSpaceGuid.PcdAdditionalRamBase|0|UINT64|0x00000a108
 
   # Simple FrameBuffer
   gQcomTokenSpaceGuid.PcdMipiFrameBufferAddress|0x00400000|UINT32|0x0000a400
