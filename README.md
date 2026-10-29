@@ -1,28 +1,97 @@
-# EDK2 UEFI firmware for Qualcomm Snapdragon platforms
+# EDK2 for Xiaomi Mi Pad 5 Pro (elish, 16GB RAM)
 
-![banner_wide_dark](https://user-images.githubusercontent.com/17036722/199902341-b086ec31-8d5c-4766-953a-8b9e1492de8b.png)
+Community firmware based on [edk2-porting/edk2-msm](https://github.com/edk2-porting/edk2-msm), with a conservative 16GB RAM fix and SimpleInit ESP configuration fixes. This is a device-port fork, not Xiaomi or TianoCore-endorsed firmware.
 
-![Github](https://img.shields.io/github/downloads/edk2-porting/edk2-sdm845/total)
-![Github](https://img.shields.io/github/v/release/edk2-porting/edk2-sdm845?include_prereleases)
+## Current baseline
 
-## Description
+- Device tested: **elish**, Snapdragon 870 / SM8250-AC, 16GB RAM.
+- Upstream device-port commit: `e1952621f419f8db60ed28271264e1b5184c571d`.
+- TianoCore EDK2 commit: `e7aac7fc137e247edad22f7ee53b9a1fba227397` (2023-01-27). This release deliberately retains the tested core; upgrading it is separate work.
+- SMBIOS reports 16GiB; tested Linux reports **15354808 KiB (about 14.64GiB)** managed RAM.
+- Original low-address platform map retained byte-for-byte. No 256MiB staging-area reclamation or small-gap reclamation is included.
 
-This repository aims to provide an usable EDK2 UEFI environment for modern Qualcomm SoCs.
+The supplemental RAM is read from the bootloader device tree, not assumed solely from a device name. On the tested unit it is 2GiB at `0x200000000` and 8GiB at `0x800000000`. Fixed firmware reservations and existing mappings are excluded. New regions use allocated boot-services memory with writeback mapping, reclaimed by Linux after ExitBootServices.
 
-It can be used as a boot manager for multi-booting mainline Linux, Android and optionally Windows on certain SoCs.
+## Clone and build
 
-## User guide and documentations
+```sh
+git clone https://github.com/luckyle7749/edk2-msm-elish-16gb.git
+cd edk2-msm-elish-16gb
+bash scripts/build-elish.sh
+```
 
-Please visit [Renegade Project Wiki](https://wiki.renegade-project.cn/)
+GitHub automatic source ZIP/tar downloads omit submodules; use `git clone` for the build instructions below.
 
-## Acknowledgements
-- Gustave Monce and his [SurfaceDuoPkg](https://github.com/WOA-Project/SurfaceDuoPkg)
-- [DuoWoa Project](https://github.com/WOA-Project)
-- [EFIDroid](https://github.com/efidroid)
-- [Ben (Bingxing) Wang](https://github.com/imbushuo/)
-- [Lumia950XLPkg](https://github.com/WOA-Project/Lumia950XLPkg)
-- BigfootACA and his [SimpleInit](https://github.com/BigfootACA/simple-init) and [LinuxSimpleMassStorage](https://github.com/BigfootACA/linux-simple-mass-storage)
-- fxsheep and his original edk2-sagit
-- All the developers and members of [Renegade Project](https://github.com/edk2-porting/) for offering efforts, equipments, valuable documents and more
-## License
-All code except drivers in GPLDriver directory are licensed under BSD 2-Clause. GPL Drivers are licensed under GPLv2 license.
+The wrapper initializes pinned dependencies and applies the tracked submodule patches automatically. It checks revisions against `SUBMODULES.lock`, accepts the exact already-applied patches on subsequent builds, and stops on unexpected submodule edits. Do not use `git submodule update --remote` for a release build. After preparation, `git status` shows the two patched submodules as modified; the exact changes are tracked in `patches/` and checked before each build.
+
+On Debian/Ubuntu, install build dependencies first:
+
+```sh
+sudo apt-get install build-essential uuid-dev acpica-tools git nasm \
+  python3 python-is-python3 gettext gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+  clang llvm device-tree-compiler libfdt-dev
+```
+
+For native Arch Linux hosts, the equivalents include `base-devel`, `git`, `python`, `gettext`, `acpica`, `nasm`, `clang`, `llvm`, `dtc`, `aarch64-linux-gnu-gcc` and `aarch64-linux-gnu-binutils`.
+
+Tested host tool versions and baseline-image provenance are in [docs/RELEASE-BASELINE.md](docs/RELEASE-BASELINE.md). Host BaseTools default to `gcc -std=gnu17` because legacy PCCTS code predates C23; target firmware still uses the upstream `CLANG38` toolchain definition. This does not mean the host requires Clang 3.8.
+
+Output: **`boot-elish.img`** in the repository root. Ordinary rebuilds may differ in hash because the upstream build embeds version strings, paths and timestamps. The release SHA256 identifies the exact device-tested binary.
+
+Optional host regression tests (requires the system libfdt development library):
+
+```sh
+bash scripts/test-high-memory.sh
+```
+
+After dependencies are initialized, `bash scripts/build-elish.sh --offline` skips dependency fetching. The upstream build expects to run from the repository root; the wrapper handles that automatically.
+
+## ESP and Linux
+
+This release contains UEFI firmware, **not** a Linux kernel, root filesystem, or disk partition layout. The tested ESP contains `Image`, `elish-csot.dtb`, and `simpleinit.uefi.cfg`; see [examples/simpleinit.uefi.cfg](examples/simpleinit.uefi.cfg). Supply a matching kernel and device tree separately, with a valid root-device command line.
+
+Keep Arch boot settings in the ESP dynamic configuration. The firmware does not embed an Arch-specific kernel path/default/countdown patch. `ENABLE_LINUX_UTILS=1` remains enabled to match the device-tested baseline; the upstream tool payload/static defaults remain present.
+
+## Flash and rollback
+
+These commands describe the tested A/B setup: Android in slot A, UEFI in **boot_b**. Back up the current boot_b and verify device/slot before flashing. The commands do not repartition or format anything.
+
+```sh
+fastboot getvar product       # must be elish
+fastboot getvar current-slot
+fastboot flash boot_b boot-elish.img
+fastboot set_active b
+fastboot reboot
+```
+
+Return to Android boot slot A:
+
+```sh
+fastboot set_active a
+fastboot reboot
+```
+
+Restore your own previously backed-up UEFI image:
+
+```sh
+fastboot flash boot_b YOUR_BACKUP.img
+fastboot set_active b
+fastboot reboot
+```
+
+On this setup, recovery requires slot A. When already in fastboot, select A, reboot to bootloader, then reboot recovery; enable ADB in recovery if needed. Never use a backup from a different device. `fastboot boot` was rejected on the tested unit.
+
+## Validation and known issues
+
+- SimpleInit ESP dynamic configuration, default entry and countdown tested.
+- SMBIOS 16GiB and both supplemental RAM banks verified after reboot.
+- Four-pattern read/write test over 10GiB passed, physically covering the full 2GiB supplemental bank and about 7.34GiB of the supplemental 8GiB bank. This is a live-system test, not an exhaustive test of every physical page.
+- Arch Linux boots to KDE Wayland with touch and Wi-Fi on the tested setup. These Linux features depend on the separate kernel/rootfs.
+- **Reboot to Android menu payload is not working** on the tested setup. Use fastboot slot switching; the example ESP config omits that entry.
+- Wi-Fi requires a Linux-side fixed MAC and iwd startup ordering on this unit; it is not provided by this firmware.
+- Audio/DSP Linux firmware support remains incomplete; upgrading this UEFI image does not install those files.
+- No modern-core migration, new Secure Boot assurance, or certification is claimed by this baseline.
+
+## Changes and dependencies
+
+[docs/CHANGES.md](docs/CHANGES.md) lists the retained patches and deliberately reverted experiments. Existing upstream licenses are retained, including the separate licenses in submodules and GPL components. See [the original README](docs/UPSTREAM-README.md) for upstream acknowledgements.
