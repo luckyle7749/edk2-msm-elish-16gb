@@ -5,7 +5,11 @@ cd "$repo_root"
 case "${1:-}" in
   '')
     git submodule update --init Common/edk2 Common/edk2-platforms GPLDrivers/Library/SimpleInit Platform/EFI_Binaries tools/Installer
-    git -C Common/edk2 submodule update --init --recursive
+    # Only libraries used by the elish firmware, excluding upstream test suites.
+    git -C Common/edk2 submodule update --init \
+      BaseTools/Source/C/BrotliCompress/brotli \
+      MdeModulePkg/Library/BrotliCustomDecompressLib/brotli \
+      MdePkg/Library/BaseFdtLib/libfdt
     git -C GPLDrivers/Library/SimpleInit submodule update --init --recursive
     ;;
   --offline) ;;
@@ -35,5 +39,5 @@ apply_patch() {
     exit 1
   fi
 }
-apply_patch Common/edk2 patches/edk2-basetools.patch
+git -C Common/edk2 diff --quiet || { echo "Unexpected EDK2 core edits" >&2; exit 1; }
 apply_patch GPLDrivers/Library/SimpleInit patches/simple-init-uefi.patch

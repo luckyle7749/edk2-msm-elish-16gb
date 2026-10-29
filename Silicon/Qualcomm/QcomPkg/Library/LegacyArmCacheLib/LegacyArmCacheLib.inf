@@ -1,0 +1,19 @@
+## @file
+# Compatibility for elish's existing direct Linux boot path.
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+[Defines]
+  INF_VERSION = 0x00010005
+  BASE_NAME = LegacyArmCacheLib
+  FILE_GUID = 39732e26-8c5d-4d2e-85ac-7d7044e876bc
+  MODULE_TYPE = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS = NULL
+[Sources.AARCH64]
+  Cache.c
+  CacheOps.S | GCC
+[Packages]
+  MdePkg/MdePkg.dec
+[LibraryClasses]
+  ArmLib
+  DebugLib

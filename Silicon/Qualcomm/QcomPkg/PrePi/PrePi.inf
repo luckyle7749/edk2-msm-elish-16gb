@@ -63,7 +63,7 @@
 [FixedPcd]
   gArmTokenSpaceGuid.PcdSystemMemoryBase
   gArmTokenSpaceGuid.PcdSystemMemorySize
-  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress
+  gQcomTokenSpaceGuid.PcdCpuVectorBaseAddress
   gArmTokenSpaceGuid.PcdFdBaseAddress
   gArmTokenSpaceGuid.PcdFdSize
   gEmbeddedTokenSpaceGuid.PcdPrePiStackBase

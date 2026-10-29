@@ -84,7 +84,8 @@ SwitchSlotsAppEntryPoint(
 
   // Print (L"Current active slot has been updated successfully! Press any key
   // to reboot.\n"); WaitAnyKey(SystemTable);
-  gRT->ResetSystem(EfiResetWarm, EFI_SUCCESS, 0, NULL);
+  // elish completes the slot switch but stalls on the warm reset path.
+  gRT->ResetSystem(EfiResetCold, EFI_SUCCESS, 0, NULL);
   CpuDeadLoop();
   return EFI_SUCCESS;
 }

@@ -23,11 +23,10 @@
 !include Silicon/Qualcomm/QcomPkg/QcomCommonDsc.inc
 
 [PcdsFixedAtBuild.common]
+  gQcomTokenSpaceGuid.PcdCpuVectorBaseAddress|0x9FF8C000
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x080000000         # Starting address
   gArmTokenSpaceGuid.PcdSystemMemorySize|0x17CC00000
 
-  gArmTokenSpaceGuid.PcdCpuVectorBaseAddress|0x9FF8C000     # CPU Vectors
-  gArmTokenSpaceGuid.PcdArmArchTimerFreqInHz|19200000
   gArmTokenSpaceGuid.PcdArmArchTimerSecIntrNum|17
   gArmTokenSpaceGuid.PcdArmArchTimerIntrNum|18
   gArmTokenSpaceGuid.PcdGicDistributorBase|0x17a00000

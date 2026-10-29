@@ -2,7 +2,14 @@
 
 Community firmware based on [edk2-porting/edk2-msm](https://github.com/edk2-porting/edk2-msm), with a conservative 16GB RAM fix and SimpleInit ESP configuration fixes. This is a device-port fork, not Xiaomi or TianoCore-endorsed firmware.
 
-## Current baseline
+## New-core migration branch
+
+This branch migrates elish to official TianoCore **edk2-stable202608**,
+commit `2970e5699ba6267f3384ffab20f96647578aebc8`.
+The firmware builds locally; device validation is pending. Published v1.0.0 remains
+available as the known working rollback. See [migration notes](docs/EDK2-MIGRATION.md).
+
+## Device-tested v1.0.0 baseline
 
 - Device tested: **elish**, Snapdragon 870 / SM8250-AC, 16GB RAM.
 - Upstream device-port commit: `e1952621f419f8db60ed28271264e1b5184c571d`.
@@ -15,26 +22,26 @@ The supplemental RAM is read from the bootloader device tree, not assumed solely
 ## Clone and build
 
 ```sh
-git clone https://github.com/luckyle7749/edk2-msm-elish-16gb.git
+git clone -b upgrade/edk2-stable202608 https://github.com/luckyle7749/edk2-msm-elish-16gb.git
 cd edk2-msm-elish-16gb
 bash scripts/build-elish.sh
 ```
 
 GitHub automatic source ZIP/tar downloads omit submodules; use `git clone` for the build instructions below.
 
-The wrapper initializes pinned dependencies and applies the tracked submodule patches automatically. It checks revisions against `SUBMODULES.lock`, accepts the exact already-applied patches on subsequent builds, and stops on unexpected submodule edits. Do not use `git submodule update --remote` for a release build. After preparation, `git status` shows the two patched submodules as modified; the exact changes are tracked in `patches/` and checked before each build.
+The wrapper initializes pinned dependencies and applies the tracked submodule patches automatically. It checks revisions against `SUBMODULES.lock`, accepts the exact already-applied patches on subsequent builds, and stops on unexpected submodule edits. Do not use `git submodule update --remote` for a release build. After preparation, `git status` shows the patched SimpleInit submodule as modified; the exact changes are tracked in `patches/` and checked before each build.
 
 On Debian/Ubuntu, install build dependencies first:
 
 ```sh
 sudo apt-get install build-essential uuid-dev acpica-tools git nasm \
   python3 python-is-python3 gettext gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
-  clang llvm device-tree-compiler libfdt-dev
+  clang llvm lld device-tree-compiler libfdt-dev
 ```
 
-For native Arch Linux hosts, the equivalents include `base-devel`, `git`, `python`, `gettext`, `acpica`, `nasm`, `clang`, `llvm`, `dtc`, `aarch64-linux-gnu-gcc` and `aarch64-linux-gnu-binutils`.
+For native Arch Linux hosts, the equivalents include `base-devel`, `git`, `python`, `gettext`, `acpica`, `nasm`, `clang`, `llvm`, `lld`, `dtc`, `aarch64-linux-gnu-gcc` and `aarch64-linux-gnu-binutils`.
 
-Tested host tool versions and baseline-image provenance are in [docs/RELEASE-BASELINE.md](docs/RELEASE-BASELINE.md). Host BaseTools default to `gcc -std=gnu17` because legacy PCCTS code predates C23; target firmware still uses the upstream `CLANG38` toolchain definition. This does not mean the host requires Clang 3.8.
+Tested host tool versions and baseline-image provenance are in [docs/RELEASE-BASELINE.md](docs/RELEASE-BASELINE.md). Host BaseTools default to `gcc -std=gnu17`; target firmware uses the pinned core’s `CLANGDWARF` profile, Clang and LLVM LLD.
 
 Output: **`boot-elish.img`** in the repository root. Ordinary rebuilds may differ in hash because the upstream build embeds version strings, paths and timestamps. The release SHA256 identifies the exact device-tested binary.
 
@@ -81,7 +88,7 @@ fastboot reboot
 
 On this setup, recovery requires slot A. When already in fastboot, select A, reboot to bootloader, then reboot recovery; enable ADB in recovery if needed. Never use a backup from a different device. `fastboot boot` was rejected on the tested unit.
 
-## Validation and known issues
+## Device-tested v1.0.0 validation and known issues
 
 - SimpleInit ESP dynamic configuration, default entry and countdown tested.
 - SMBIOS 16GiB and both supplemental RAM banks verified after reboot.

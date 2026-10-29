@@ -52,8 +52,7 @@ PrePiMain(
     ArmWriteCntHctl(CNTHCTL_EL2_EL1PCTEN | CNTHCTL_EL2_EL1PCEN);
   }
 
-  /* Enable program flow prediction, if supported */
-  ArmEnableBranchPrediction();
+  // AArch64 branch prediction is architectural; the old ArmLib call was a no-op.
 
   // Declare UEFI region
   MemoryBase     = FixedPcdGet32(PcdSystemMemoryBase);

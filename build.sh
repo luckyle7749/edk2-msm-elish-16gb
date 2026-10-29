@@ -10,7 +10,7 @@ function _help(){
 	echo "	--all, -a:               build all devices."
 	echo "	--chinese, -c:           use hub.nuaa.cf for submodule cloning."
 	echo "	--release MODE, -r MODE: Release mode for building, default is 'RELEASE', 'DEBUG' alternatively."
-	echo "	--toolchain TOOLCHAIN:   Set toolchain, default is 'CLANG38'."
+	echo "	--toolchain TOOLCHAIN:   Set toolchain, default is 'CLANGDWARF'."
 	echo "	--uart, -u:              compile with UART support, print debug messages to uart debug port."
 	echo " 	--skip-rootfs-gen:       skip generating SimpleInit rootfs to speed up building."
 	echo " 	--no-exception-disp:     do not display exception information in DEBUG builds."
@@ -123,7 +123,9 @@ function _build(){
 
 	_call_hook platform_pre_build||return "$?"
 	mkdir -p "${ROOTDIR}/Common/edk2/Conf"
-	cp "${ROOTDIR}/tools/"{build_rule.txt,tools_def.txt} "${ROOTDIR}/Common/edk2/Conf/"
+	# Keep build rules and tool profiles paired with the pinned EDK2 core.
+	cp "${ROOTDIR}/Common/edk2/BaseTools/Conf/build_rule.template" "${ROOTDIR}/Common/edk2/Conf/build_rule.txt"
+	cp "${ROOTDIR}/Common/edk2/BaseTools/Conf/tools_def.template" "${ROOTDIR}/Common/edk2/Conf/tools_def.txt"
 	build \
 		-s \
 		-n 0 \
@@ -171,7 +173,7 @@ MODE=RELEASE
 CHINESE=false
 CLEAN=false
 DISTCLEAN=false
-TOOLCHAIN=CLANG38
+TOOLCHAIN=CLANGDWARF
 export FIX_CLANG=0
 SOC_VENDOR=Qualcomm
 USE_UART=0
@@ -287,8 +289,7 @@ done
 echo "EDK2 Path: ${_EDK2}"
 echo "EDK2_PLATFORMS Path: ${_EDK2_PLATFORMS}"
 export CROSS_COMPILE="${CROSS_COMPILE:-aarch64-linux-gnu-}"
-export GCC5_AARCH64_PREFIX="${CROSS_COMPILE}"
-export CLANG38_AARCH64_PREFIX="${CROSS_COMPILE}"
+export GCC_AARCH64_PREFIX="${CROSS_COMPILE}"
 export PACKAGES_PATH="$_EDK2:$_EDK2_PLATFORMS:$_SIMPLE_INIT:$PWD:$PWD/GPLDrivers"
 export WORKSPACE="${OUTDIR}/workspace"
 GITCOMMIT="$(git describe --tags --always)"||GITCOMMIT="unknown"

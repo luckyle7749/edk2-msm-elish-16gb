@@ -16,9 +16,7 @@ SMBIOS_TABLE_TYPE4 mProcessorInfoType4_a77_big = {
                                      // enumeration value from
                                      // PROCESSOR_FAMILY2_DATA.
     2,                               // ProcessorManufacture String;
-    {                                // ProcessorId;
-     {0x00, 0x00, 0x00, 0x00},
-     {0x00, 0x00, 0x00, 0x00}},
+    {0}, // ProcessorId
     3, // ProcessorVersion String;
     {
         // Voltage;
@@ -71,9 +69,7 @@ SMBIOS_TABLE_TYPE4 mProcessorInfoType4_a77 = {
                                      // enumeration value from
                                      // PROCESSOR_FAMILY2_DATA.
     2,                               // ProcessorManufacture String;
-    {                                // ProcessorId;
-     {0x00, 0x00, 0x00, 0x00},
-     {0x00, 0x00, 0x00, 0x00}},
+    {0}, // ProcessorId
     3, // ProcessorVersion String;
     {
         // Voltage;
@@ -126,9 +122,7 @@ SMBIOS_TABLE_TYPE4 mProcessorInfoType4_a55 = {
                                      // enumeration value from
                                      // PROCESSOR_FAMILY2_DATA.
     2,                               // ProcessorManufacture String;
-    {                                // ProcessorId;
-     {0x00, 0x00, 0x00, 0x00},
-     {0x00, 0x00, 0x00, 0x00}},
+    {0}, // ProcessorId
     3, // ProcessorVersion String;
     {
         // Voltage;
@@ -191,8 +185,8 @@ SMBIOS_TABLE_TYPE7 mCacheInfoType7_a77_L1I = {
            // Enabled/Disabled   :1  (Enabled)
            // Operational Mode   :2  (Unknown)
            // Reserved           :6
-    0x0030, // Maximum Size
-    0x0030, // Install Size
+    {.Size = 0x0030, .Granularity64K = 0}, // Maximum Size
+    {.Size = 0x0030, .Granularity64K = 0}, // Install Size
     {
         // Supported SRAM Type
         0, // Other             :1
@@ -232,8 +226,8 @@ SMBIOS_TABLE_TYPE7 mCacheInfoType7_a55_L1I = {
            // Enabled/Disabled   :1  (Enabled)
            // Operational Mode   :2  (Unknown)
            // Reserved           :6
-    0x0030, // Maximum Size
-    0x0030, // Install Size
+    {.Size = 0x0030, .Granularity64K = 0}, // Maximum Size
+    {.Size = 0x0030, .Granularity64K = 0}, // Install Size
     {
         // Supported SRAM Type
         0, // Other             :1
@@ -274,8 +268,8 @@ SMBIOS_TABLE_TYPE7 mCacheInfoType7_a77_L1D = {
            // Enabled/Disabled   :1  (Enabled)
            // Operational Mode   :2  (WB)
            // Reserved           :6
-    0x0020, // Maximum Size
-    0x0020, // Install Size
+    {.Size = 0x0020, .Granularity64K = 0}, // Maximum Size
+    {.Size = 0x0020, .Granularity64K = 0}, // Install Size
     {
         // Supported SRAM Type
         0, // Other             :1
@@ -315,8 +309,8 @@ SMBIOS_TABLE_TYPE7 mCacheInfoType7_a55_L1D = {
            // Enabled/Disabled   :1  (Enabled)
            // Operational Mode   :2  (WB)
            // Reserved           :6
-    0x0020, // Maximum Size
-    0x0020, // Install Size
+    {.Size = 0x0020, .Granularity64K = 0}, // Maximum Size
+    {.Size = 0x0020, .Granularity64K = 0}, // Install Size
     {
         // Supported SRAM Type
         0, // Other             :1
@@ -356,8 +350,8 @@ SMBIOS_TABLE_TYPE7 mCacheInfoType7_a77_L2 = {
             // Enabled/Disabled   :1  (Enabled)
             // Operational Mode   :2  (WB)
             // Reserved           :6
-    0x0800, // Maximum Size
-    0x0800, // Install Size
+    {.Size = 0x0800, .Granularity64K = 0}, // Maximum Size
+    {.Size = 0x0800, .Granularity64K = 0}, // Install Size
     {
         // Supported SRAM Type
         0, // Other             :1
@@ -397,8 +391,8 @@ SMBIOS_TABLE_TYPE7 mCacheInfoType7_a55_L2 = {
             // Enabled/Disabled   :1  (Enabled)
             // Operational Mode   :2  (WB)
             // Reserved           :6
-    0x0800, // Maximum Size
-    0x0800, // Install Size
+    {.Size = 0x0800, .Granularity64K = 0}, // Maximum Size
+    {.Size = 0x0800, .Granularity64K = 0}, // Install Size
     {
         // Supported SRAM Type
         0, // Other             :1

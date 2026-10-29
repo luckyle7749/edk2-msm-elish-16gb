@@ -1,21 +1,21 @@
 #include <Library/PcdLib.h>
-#include <AsmMacroIoLibV8.h>
-#include <Chipset/AArch64.h>
+#include <AsmMacroLib.h>
+#include <AArch64/AArch64.h>
 
 .text
 .align 3
 
 .set CTRL_SPAN_BIT, (1 << 23)
 
-GCC_ASM_IMPORT (CEntryPoint)
-GCC_ASM_IMPORT (SecondaryCEntryPoint)
+.extern CEntryPoint
+.extern SecondaryCEntryPoint
 
-GCC_ASM_IMPORT (ArmEnableInstructionCache)
-GCC_ASM_IMPORT (ArmEnableDataCache)
-GCC_ASM_IMPORT (ArmInvalidateTlb)
+.extern ArmEnableInstructionCache
+.extern ArmEnableDataCache
+.extern ArmInvalidateTlb
 
-GCC_ASM_EXPORT (_ModuleEntryPoint)
-GCC_ASM_EXPORT (SecondaryCpuEntry)
+.global _ModuleEntryPoint
+.global SecondaryCpuEntry
 
 .global _StackBase
 .global _StackSize

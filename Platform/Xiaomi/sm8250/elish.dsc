@@ -28,3 +28,11 @@
   gRenegadePkgTokenSpaceGuid.PcdDeviceVendor|"Xiaomi"
   gRenegadePkgTokenSpaceGuid.PcdDeviceProduct|"Mi Pad 5 Pro"
   gRenegadePkgTokenSpaceGuid.PcdDeviceCodeName|"elish"
+
+# Explicitly invoked upstream slot switcher; no automatic BootSlotDxe writes.
+[Components.common]
+
+  GPLDrivers/Application/SwitchSlotsApp/SwitchSlotsApp.inf {
+    <LibraryClasses>
+      BootSlotLib|GPLDrivers/Library/BootSlotLib/BootSlotLib.inf
+  }

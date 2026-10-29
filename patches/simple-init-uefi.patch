@@ -1,3 +1,16 @@
+diff --git a/SimpleInit.inc b/SimpleInit.inc
+index c2468b2..d7d5c83 100644
+--- a/SimpleInit.inc
++++ b/SimpleInit.inc
+@@ -27,7 +27,7 @@
+   SimpleInitConfd|src/confd/SimpleInitConfd.inf
+   SimpleInitRootFS|src/SimpleInitRootFS.inf
+   KernelFdtDxe|src/kernelfdt/KernelFdtDxe.inf
+-  FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
++  FdtLib|MdePkg/Library/BaseFdtLib/BaseFdtLib.inf
+ 
+ [Components]
+   libs/stb/STBLib.inf
 diff --git a/libs/compatible/malloc.c b/libs/compatible/malloc.c
 index f550e40..1db0e10 100644
 --- a/libs/compatible/malloc.c
@@ -102,3 +115,55 @@ index ff56991..41e70d2 100644
  	}
  	if(!def_fp||!def_path)tlog_warn("no default config save path");
  	done:
+diff --git a/src/gui/SimpleInitGUI.inf b/src/gui/SimpleInitGUI.inf
+index 6107fc8..be98dd5 100644
+--- a/src/gui/SimpleInitGUI.inf
++++ b/src/gui/SimpleInitGUI.inf
+@@ -60,7 +60,6 @@
+   gEfiSimplePointerProtocolGuid
+   gEfiSimpleTextInProtocolGuid
+   gEfiGraphicsOutputProtocolGuid
+-  gEfiUgaDrawProtocolGuid
+   gEfiLoadedImageProtocolGuid
+   gEfiSimpleFileSystemProtocolGuid
+   gEfiTimestampProtocolGuid
+@@ -84,7 +83,6 @@
+   drivers/modes.c
+   drivers/dummy.c
+   drivers/uefi_gop.c
+-  drivers/uefi_uga.c
+   drivers/uefi_pointer.c
+   drivers/uefi_keyboard.c
+   drivers/uefi_touch.c
+diff --git a/src/gui/drivers.c b/src/gui/drivers.c
+index 2052e8f..6f58570 100644
+--- a/src/gui/drivers.c
++++ b/src/gui/drivers.c
+@@ -17,7 +17,6 @@ extern struct gui_driver guidrv_vnc;
+ extern struct gui_driver guidrv_http;
+ extern struct gui_driver guidrv_fbdev;
+ extern struct gui_driver guidrv_uefigop;
+-extern struct gui_driver guidrv_uefiuga;
+ extern struct input_driver indrv_uefi_kbd;
+ extern struct input_driver indrv_uefi_touch;
+ extern struct input_driver indrv_uefi_pointer;
+@@ -33,7 +32,6 @@ extern struct input_driver indrv_event;
+ struct gui_driver*gui_drvs[]={
+ 	#ifdef ENABLE_UEFI
+ 	&guidrv_uefigop,
+-	&guidrv_uefiuga,
+ 	#else
+ 	#ifdef ENABLE_GTK
+ 	&guidrv_gtk,
+diff --git a/src/linux-boot/SimpleInitBootLinux.inf b/src/linux-boot/SimpleInitBootLinux.inf
+index ad0682d..dce0503 100644
+--- a/src/linux-boot/SimpleInitBootLinux.inf
++++ b/src/linux-boot/SimpleInitBootLinux.inf
+@@ -21,7 +21,6 @@
+ 
+ [LibraryClasses.ARM, LibraryClasses.AARCH64]
+   ArmLib
+-  ArmGicLib
+   CacheMaintenanceLib
+ 
+ [LibraryClasses]

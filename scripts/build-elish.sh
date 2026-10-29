@@ -5,10 +5,9 @@ cd "$repo_root"
 prepare_args=()
 if [[ "${1:-}" == --offline ]]; then prepare_args+=(--offline); shift; fi
 bash scripts/prepare-elish.sh "${prepare_args[@]}"
-for tool in git python3 make gcc clang aarch64-linux-gnu-gcc aarch64-linux-gnu-ld msgfmt; do
+for tool in git python3 make gcc clang aarch64-linux-gnu-gcc aarch64-linux-gnu-ld llvm-ar llvm-objcopy ld.lld msgfmt; do
   command -v "$tool" >/dev/null || { echo "Missing build dependency: $tool" >&2; exit 1; }
 done
-# Legacy PCCTS uses pre-C23 function declarations. Scope the language mode
-# to host BaseTools; target firmware still uses the selected EDK2 toolchain.
+# Keep the host tools language mode stable across GCC releases.
 export BUILD_CC="${BUILD_CC:-gcc -std=gnu17}"
 bash build.sh --device elish "$@"
