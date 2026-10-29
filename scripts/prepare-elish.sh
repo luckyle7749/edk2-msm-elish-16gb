@@ -9,7 +9,8 @@ case "${1:-}" in
     git -C Common/edk2 submodule update --init \
       BaseTools/Source/C/BrotliCompress/brotli \
       MdeModulePkg/Library/BrotliCustomDecompressLib/brotli \
-      MdePkg/Library/BaseFdtLib/libfdt
+      MdePkg/Library/BaseFdtLib/libfdt \
+      MdePkg/Library/MipiSysTLib/mipisyst
     git -C GPLDrivers/Library/SimpleInit submodule update --init --recursive
     ;;
   --offline) ;;
