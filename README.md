@@ -24,7 +24,7 @@ The supplemental RAM is read from the bootloader device tree, not assumed solely
 ## Clone and build
 
 ```sh
-git clone -b upgrade/edk2-stable202608 https://github.com/luckyle7749/edk2-msm-elish-16gb.git
+git clone -b migration/edk2-stable202608 https://github.com/luckyle7749/edk2-msm-elish-16gb.git
 cd edk2-msm-elish-16gb
 bash scripts/build-elish.sh
 ```

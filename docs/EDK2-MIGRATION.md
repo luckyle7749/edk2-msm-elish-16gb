@@ -2,6 +2,8 @@
 
 Status: clean-checkout host build passed; device testing found an ESP-access regression. Migration work stopped at the user’s request.
 
+Preservation branch: `migration/edk2-stable202608`.
+
 ## Source and scope
 
 - Device port: e1952621f419f8db60ed28271264e1b5184c571d plus this fork’s patches.
