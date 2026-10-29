@@ -6,8 +6,10 @@ Community firmware based on [edk2-porting/edk2-msm](https://github.com/edk2-port
 
 This branch migrates elish to official TianoCore **edk2-stable202608**,
 commit `2970e5699ba6267f3384ffab20f96647578aebc8`.
-The firmware builds locally; device validation is pending. Published v1.0.0 remains
-available as the known working rollback. See [migration notes](docs/EDK2-MIGRATION.md).
+The firmware builds locally, but device testing found an ESP-access regression:
+Arch configuration is not loaded and ESP cannot be opened from the file manager.
+Migration work is stopped; this branch preserves the work for later investigation.
+Published v1.0.0 remains available as the known working rollback. See [migration notes](docs/EDK2-MIGRATION.md).
 
 ## Device-tested v1.0.0 baseline
 

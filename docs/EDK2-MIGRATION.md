@@ -1,6 +1,6 @@
 # elish: migration to edk2-stable202608
 
-Status: clean-checkout host build passed; on-device validation pending.
+Status: clean-checkout host build passed; device testing found an ESP-access regression. Migration work stopped at the user’s request.
 
 ## Source and scope
 
@@ -61,10 +61,16 @@ Normal build metadata can change these sizes slightly.
 - Boot-image payload matches BootShim plus the complete FD; appended DTB is valid.
 - FD reset-vector branch targets the SEC entry at offset 0x1410.
 - Actual bootloader RAM fixture produces exactly the supplemental 2GiB and 8GiB banks.
-- Pending: real-device boot, display/touch/menu,
-  Linux memory-map comparison, Wi-Fi and cold reboot to Android slot A.
+- Device test: the menu appears, but the ESP Arch configuration is not loaded.
+  Selecting ESP in the file manager has no visible effect. Root cause is unresolved.
+- Arch boot, Linux memory-map comparison, Wi-Fi and cold reboot to Android slot A
+  remain unverified with this core.
+- Temporary SDIAG popup/console diagnostics have been removed from the source.
+  This branch preserves the migration work and is not a working-release replacement.
 - Flash only boot_b. Preserve the current working image and its SHA256.
 
 The clean-build candidate is 7,137,280 bytes, SHA256:
 `1b478e6c10d73dc170d16d2e38fdcd638f9deb01531b95b96f0c60998117449f`.
-It has not replaced the device-tested v1.0.0 image.
+It was flashed for testing. The published v1.0.0 release remains unchanged.
+The tablet was last flashed with a temporary diagnostic build; cleaning this
+repository does not restore the tablet firmware.
