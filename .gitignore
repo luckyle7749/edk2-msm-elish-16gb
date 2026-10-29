@@ -14,3 +14,7 @@ ramdisk
 *.rej
 *.orig
 *.fd
+
+# Local validation logs and release staging
+artifacts/
+release/
