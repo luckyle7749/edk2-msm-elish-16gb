@@ -446,6 +446,54 @@ CHAR8 *mBootInfoType32Strings[] = {NULL};
    NULL is OK.
 **/
 
+// Only platforms opting into the FDT RAM fix override static SMBIOS sizes.
+STATIC UINT64 mInstalledMemoryBytes;
+
+STATIC
+VOID DetectInstalledMemory(VOID *Fdt)
+{
+  uint64_t Base, Size;
+  UINT64 Total = 0;
+  UINTN Index;
+  const UINT64 GiB = 0x40000000ULL;
+
+  mInstalledMemoryBytes = 0;
+  if (FixedPcdGet64(PcdAdditionalRamBase) == 0 || Fdt == NULL)
+    return;
+  for (Index = 0; fdt_get_memory(Fdt, (int)Index, &Base, &Size); Index++) {
+    if (Index >= 32 || Size == 0 || Base > MAX_UINT64 - Size ||
+        Size > 32 * GiB || Total > 32 * GiB - Size)
+      return;
+    Total += Size;
+  }
+  if (Total == 0)
+    return;
+  // Qualcomm's RAM banks omit small firmware carveouts. Installed elish
+  // capacities are whole GiB; keep usable RAM accounting in the EFI map.
+  mInstalledMemoryBytes = (Total + GiB - 1) & ~(GiB - 1);
+}
+
+STATIC
+VOID UpdateMemoryCapacity(EFI_SMBIOS_TABLE_HEADER *Record)
+{
+  UINT64 MiB;
+  if (mInstalledMemoryBytes == 0)
+    return;
+  MiB = RShiftU64(mInstalledMemoryBytes, 20);
+  if (Record->Type == EFI_SMBIOS_TYPE_PHYSICAL_MEMORY_ARRAY &&
+      Record->Length >= sizeof(SMBIOS_TABLE_TYPE16)) {
+    SMBIOS_TABLE_TYPE16 *Array = (SMBIOS_TABLE_TYPE16 *)Record;
+    Array->MaximumCapacity = (UINT32)RShiftU64(mInstalledMemoryBytes, 10);
+    Array->ExtendedMaximumCapacity = 0;
+  } else if (Record->Type == EFI_SMBIOS_TYPE_MEMORY_DEVICE &&
+             Record->Length >= sizeof(SMBIOS_TABLE_TYPE17)) {
+    SMBIOS_TABLE_TYPE17 *Device = (SMBIOS_TABLE_TYPE17 *)Record;
+    Device->Size = MiB < 0x7FFF ? (UINT16)MiB : 0x7FFF;
+    Device->ExtendedSize = MiB < 0x7FFF ? 0 : (UINT32)MiB;
+    Device->VolatileSize = mInstalledMemoryBytes;
+  }
+}
+
 EFI_STATUS
 EFIAPI
 LogSmbiosData(
@@ -497,6 +545,7 @@ LogSmbiosData(
     return EFI_OUT_OF_RESOURCES;
   }
   CopyMem(Record, Template, Template->Length);
+  UpdateMemoryCapacity(Record);
 
   // Append string pack
   Str = ((CHAR8 *)Record) + Record->Length;
@@ -534,6 +583,7 @@ PlatformSmbiosDriverEntryPoint(
 
   Fdt = GetFdt ();
   ASSERT(Fdt != NULL);
+  DetectInstalledMemory(Fdt);
 
   // TYPE0 BIOS Information
   AsciiSPrint(

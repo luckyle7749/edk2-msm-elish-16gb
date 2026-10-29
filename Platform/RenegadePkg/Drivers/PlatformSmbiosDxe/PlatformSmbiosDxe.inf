@@ -50,6 +50,7 @@
   gEfiGlobalVariableGuid
 
 [FixedPcd]
+  gQcomTokenSpaceGuid.PcdAdditionalRamBase
   gArmTokenSpaceGuid.PcdSystemMemoryBase
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareRevision
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
